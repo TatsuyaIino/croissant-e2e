@@ -1,5 +1,3 @@
-
-
 - id: diagnose_axis_none_before_start
   content_type: diagnose
   name: "診断（一軸ポイント型・リードなし・開始前）"
