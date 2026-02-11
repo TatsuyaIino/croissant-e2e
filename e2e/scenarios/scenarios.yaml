@@ -1,0 +1,48 @@
+
+
+- id: diagnose_axis_none_before_start
+  content_type: diagnose
+  name: "診断（一軸ポイント型・リードなし・開始前）"
+  url: "https://stg.croissant.buzz/diagnose/R5fS8Cjk"
+  lead_type: line
+  draw_count: 1
+  lead_params:
+    reuse_policy: must_reusable
+    top_start_text: "診断を始める"
+    used_toast_type: multi
+
+    lead_timing: before_result
+    diagnose_type: axis_point
+
+    # 分岐期待（Q1=A → Q2A1 → Q3A2）
+    branch_expected:
+      q2_text: "Q2A1"
+      q3_text: "Q3A2"
+      q3_multi: true
+
+    # 回答（Q1単一、Q2単一、Q3複数）
+    answers:
+      q1: "A"
+      q2: "A1-A"
+      q3: ["A2-D", "A2-E"]
+
+    # 一軸ポイント型の境界
+    axis_thresholds:
+      A: [0, 5]
+      B: [6, 11]
+      C: [12, 999]
+
+    # 回答ポイント（例：あなたの説明に合わせる）
+    answer_points:
+      q1:
+        A: 1
+        B: 2
+        C: 3
+      q2:
+        A1-A: 1
+        A1-B: 2
+        A1-C: 3
+      q3:
+        A2-D: 1
+        A2-E: 2
+        A2-F: 3

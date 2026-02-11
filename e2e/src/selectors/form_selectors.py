@@ -1,0 +1,6 @@
+FORM_MODAL_SELECTOR = "[data-scope='dialog'][data-part='content'][role='dialog']"
+FORM_HEADING_TEXT1 = "フォームに必要な情報を入力して"
+FORM_HEADING_TEXT2 = "開始しましょう！"
+SUBMIT_TEXT = "送信して開始"
+REQUIRED_BADGE_TEXT = "必須"
+REQUIRED_ERROR_TEXT = "必須です"
