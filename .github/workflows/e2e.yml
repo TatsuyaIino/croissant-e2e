@@ -73,3 +73,20 @@ jobs:
 
           payload=$(jq -n --arg text "$TEXT" '{text: $text}')
           curl -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL"
+          - name: Run tests
+          run: python -m pytest -q
+          env:
+            CI: true
+        
+      - name: Run tests
+        run: python -m pytest -q
+        env:
+          CI: true
+          
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-artifacts
+          path: artifacts
+          
