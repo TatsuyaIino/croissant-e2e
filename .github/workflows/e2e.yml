@@ -1,0 +1,75 @@
+name: e2e
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 1 * * *" # 毎日10:00 JST（UTC 01:00）
+
+jobs:
+  run-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        working-directory: e2e
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: e2e/requirements.txt
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Playwrightを使ってる前提（Chromiumだけで良ければこれでOK）
+      - name: Install Playwright browsers
+        run: |
+          python -m playwright install --with-deps chromium
+
+      - name: Run tests
+        env:
+          CI: "true"
+          # 例：LINEログイン系をCIで回すならSecretsを入れる
+          LINE_TEST_EMAIL: ${{ secrets.LINE_TEST_EMAIL }}
+          LINE_TEST_PASSWORD: ${{ secrets.LINE_TEST_PASSWORD }}
+        run: |
+          python -m pytest -q
+
+      # 失敗時に artifacts をアップロード（trace zip / png / html）
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-artifacts
+          path: e2e/artifacts
+          if-no-files-found: ignore
+
+      # Slack通知（成功/失敗どちらも）
+      - name: Notify Slack
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          JOB_STATUS: ${{ job.status }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ "$JOB_STATUS" = "success" ]; then
+            EMOJI=":white_check_mark:"
+          else
+            EMOJI=":x:"
+          fi
+
+          TEXT="$EMOJI *E2E $JOB_STATUS*  \n• repo: ${{ github.repository }}\n• branch: ${{ github.ref_name }}\n• actor: ${{ github.actor }}\n• run: $RUN_URL"
+
+          payload=$(jq -n --arg text "$TEXT" '{text: $text}')
+          curl -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL"
