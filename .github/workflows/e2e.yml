@@ -82,6 +82,8 @@ jobs:
         run: python -m pytest -q
         env:
           CI: true
+          LINE_TEST_EMAIL: ${{ secrets.LINE_TEST_EMAIL }}
+          LINE_TEST_PASSWORD: ${{ secrets.LINE_TEST_PASSWORD }}
           
       - name: Upload artifacts
         if: always()
@@ -89,4 +91,6 @@ jobs:
         with:
           name: e2e-artifacts
           path: artifacts
+
+
           

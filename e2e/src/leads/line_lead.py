@@ -200,8 +200,12 @@ def _handle_line_login_if_needed(line_page, artifacts) -> bool:
 
     if is_form:
         # 資格情報（.env推奨、無ければフォールバック）
-        email = os.getenv("LINE_TEST_EMAIL", "t.i-0607.g@ezweb.ne.jp")
-        password = os.getenv("LINE_TEST_PASSWORD", "giants1195")
+        email = os.getenv("LINE_TEST_EMAIL")
+        password = os.getenv("LINE_TEST_PASSWORD")
+
+        if not email or not password:
+            artifacts.save_debug(line_page, "line_env_missing")
+            return False
 
         try:
             # 入力
